@@ -1,26 +1,33 @@
 const {Sequelize, DataTypes} = require("sequelize");
-const {sequelize} = require("./connect");
+const {sequelize, connect} = require("./connect");
 
-const User = sequelize.define("User", {
-    user_id: {
-        type: DataTypes.CHAR,
+const User = sequelize.define("chat_users", {
+    id: {
+        type: DataTypes.STRING,
         primaryKey: true,
-        allowNull: false
     },
     name: {
         type: DataTypes.STRING,
         allowNull: false,
         unique: true
     }
+}, {
+    timestamps: false
 });
 
 
 async function createUser() {
     const user = await User.create({
-        user_id
-    })
+        user_id: "123",
+        name: "test"
+    });
 }
 
 async function selectUser() {
-
+    let users = await User.findAll();
+    console.log(users);
+    
 }
+
+connect();
+selectUser();
