@@ -1,7 +1,11 @@
-const express = require("express");
-const app = express();
+import express from "express";
+import type {Express, Request, Response} from "express";
+import {PrismaClient} from "@prisma/client";
 
-app.get("/", (req, res) => {
+const app = express();
+const prisma = new PrismaClient();
+
+app.get("/", (req: Request, res: Response) => {
     res.send({
         msg:'GET request'
       });
