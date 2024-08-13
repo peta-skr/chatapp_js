@@ -8,6 +8,7 @@ import { v4 as uuidv4 } from 'uuid';
 import {Server} from "socket.io"
 import { createServer } from "http";
 import cors from "cors";
+import { log } from "console";
 
 const app = express();
 app.use(bodyParser.urlencoded({extended: true}))
@@ -59,15 +60,16 @@ app.post("/login", async (req: Request, res: Response) => {
     if (!user) {
         const new_user = await prisma.user.create({
             data: {
-                id: uuidv4(),
+                // id: uuidv4(),
+                id: name,
                 name: name
             }
         })
 
         res.send(new_user);
+    }else {
+        res.send(user);
     }
-    
-    res.send(user);
 })
 
 // メッセージの送信
