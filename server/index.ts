@@ -85,6 +85,16 @@ app.get("/message/get", (req, res) => {
   // 送信が起こったタイミングで走る
 });
 
+async function add_message(user: any, text: any) {
+  const message = await prisma.chat.create({
+    data: {
+      id: uuidv4(),
+      user_name: user.name,
+      text: text,
+    },
+  });
+}
+
 io.on("connection", (socket) => {
   console.log("socket");
 
@@ -93,7 +103,9 @@ io.on("connection", (socket) => {
   });
 
   socket.on("chat message", (msg) => {
-    io.emit("chat message", msg);
+    console.log(msg);
+
+    io.emit("chat message", "ok");
   });
 });
 

@@ -14,13 +14,13 @@ datasource db {
 }
 
 model User {
-  id String @id @db.VarChar(16)
+  id String @id @db.VarChar(32)
   name String @unique @db.VarChar(32)
   chat Chat?
 }
 
 model Chat {
-  id String @id @db.VarChar(16)
+  id String @id @db.VarChar(32)
   user User @relation(fields: [user_name], references: [name])
   user_name String @unique @db.VarChar(32)
   text String
