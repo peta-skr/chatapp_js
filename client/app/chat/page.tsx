@@ -3,23 +3,7 @@
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { io } from "socket.io-client";
-
-function socket_connect() {
-  const socket = io("http://localhost:4000", { path: "/socket/" });
-
-  socket.on("connect", () => {
-    if (socket.connected) {
-      console.log(`client connected on port 4000`);
-    }
-
-    socket.on("chat message", (msg) => {
-      console.log(msg);
-    });
-  });
-
-  return socket;
-}
+import { socket } from "@/socket";
 
 function send_message(event: any, socket: any, text: any, session: any) {
   console.log(socket);
@@ -40,26 +24,23 @@ const ChatPage = () => {
   const router = useRouter();
 
   const [text, setText] = useState("");
-
-  let socket: any;
+  const [isConnected, setIsConnected] = useState(socket.connected);
 
   useEffect(() => {
-    console.log(session.status);
-
     if (session.status == "unauthenticated") {
       router.push("/");
     } else if (session.status == "authenticated") {
-      socket = socket_connect();
+      console.log("a");
+
+      socket.on("connection", () => console.log("connect"));
+      socket.on("disconnect", () => console.log("disconnect"));
+    } else {
+      console.log("loading");
     }
 
     return () => {
-      if (session.status == "authenticated") {
-        socket.on("disconnect", () => {
-          console.log("接続解除しました");
-        });
-      } else {
-        console.log("clean up");
-      }
+      socket.off("connection", () => console.log("connection"));
+      socket.off("disconnect", () => console.log("disconnect"));
     };
   }, [session]);
 
