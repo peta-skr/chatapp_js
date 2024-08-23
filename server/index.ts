@@ -85,14 +85,32 @@ app.get("/message/get", (req, res) => {
   // 送信が起こったタイミングで走る
 });
 
-async function add_message(user: any, text: any) {
-  const message = await prisma.chat.create({
-    data: {
-      id: uuidv4(),
-      user_name: user.name,
-      text: text,
+async function add_message(username: any, text: any) {
+  const user = await prisma.user.findUnique({
+    where: {
+      name: username,
     },
   });
+
+  console.log(user);
+
+  if (user) {
+    const message = await prisma.chat.create({
+      data: {
+        id: uuidv4(),
+        user: {
+          connect: {
+            id: user.id,
+          },
+        },
+        text: text,
+      },
+    });
+
+    return message;
+  }
+
+  return null;
 }
 
 io.on("connection", (socket) => {
@@ -103,9 +121,16 @@ io.on("connection", (socket) => {
   });
 
   socket.on("chat message", (msg) => {
-    console.log(msg);
+    let new_msg: any = add_message(msg.user, msg.text);
 
-    io.emit("chat message", "ok");
+    if (new_msg) {
+      io.emit("add message", new_msg);
+    }
+  });
+
+  socket.on("select all", async () => {
+    const all_message = await prisma.chat.findMany();
+    socket.emit("send all message", all_message);
   });
 });
 
