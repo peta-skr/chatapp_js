@@ -16,12 +16,13 @@ datasource db {
 model User {
   id String @id @db.VarChar(32)
   name String @unique @db.VarChar(32)
-  chat Chat?
+  chats Chat[]
 }
 
 model Chat {
-  id String @id @db.VarChar(32)
+  id String @id @db.VarChar(36)
   user User @relation(fields: [user_name], references: [name])
-  user_name String @unique @db.VarChar(32)
+  user_name String @db.VarChar(32)
   text String
+  create_date DateTime @default(now())
 }
