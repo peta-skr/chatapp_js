@@ -4,6 +4,8 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { ReactNode, useEffect, useState } from "react";
 import { socket } from "@/socket";
+import { useInfiniteQuery } from "@tanstack/react-query";
+import axios from "axios";
 
 const ChatPage = () => {
   function send_message(event: any) {
@@ -16,18 +18,32 @@ const ChatPage = () => {
       setText("");
     }
   }
+
+  async function getChatData() {}
+
   const session = useSession();
   const router = useRouter();
 
   const [text, setText] = useState("");
-  const [isConnected, setIsConnected] = useState(socket.connected);
+  // const [isConnected, setIsConnected] = useState(socket.connected);
   const [messages, SetMessages]: any = useState([]);
+  async function test() {
+    let res = await axios.get("http://localhost:4000/message/get?pageParam=1");
+    console.log(res);
+  }
+
+  const {} = useInfiniteQuery({
+    queryKey: ["chat_data"],
+    queryFn: getChatData,
+    initialPageParam: 0,
+    getNextPageParam: (lastPage, pages) => lastPage.nextCursor,
+  });
 
   useEffect(() => {
     function onConnect() {
       console.log("connect");
 
-      setIsConnected(true);
+      // setIsConnected(true);
 
       socket.emit("select all");
     }
@@ -35,7 +51,7 @@ const ChatPage = () => {
     function onDisconnect() {
       console.log("disconnect");
 
-      setIsConnected(false);
+      // setIsConnected(false);
     }
 
     if (session.status == "unauthenticated") {
@@ -43,11 +59,11 @@ const ChatPage = () => {
     } else if (session.status == "authenticated") {
       socket.connect();
 
-      socket.on("connect", onConnect);
+      socket.on("connect", () => onConnect());
       socket.on("disconnect", onDisconnect);
       socket.on("send all message", (all_message) => SetMessages(all_message));
       socket.on("chat message", (msg) => console.log(msg));
-      socket.on("add message", (msg) => SetMessages(...messages, msg));
+      socket.on("add message", (msg) => SetMessages([...messages, msg]));
     } else {
       console.log("loading");
     }
@@ -74,7 +90,7 @@ const ChatPage = () => {
       <div>
         {messages.map((msg: any) => {
           return (
-            <div>
+            <div key={msg.id}>
               <p>{msg.user_name}</p>
               <p>{msg.create_date}</p>
               <p>{msg.text}</p>
