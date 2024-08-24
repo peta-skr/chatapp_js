@@ -81,8 +81,11 @@ app.post("/message/send", (req, res) => {
 });
 
 // 受信
-app.get("/message/get", (req, res) => {
-  // 送信が起こったタイミングで走る
+app.get("/message/get", async (req, res) => {
+  let pageParam = String(req.query.pageParam);
+  let chat_data = await get_chat_data(pageParam);
+
+  res.send(chat_data);
 });
 
 async function add_message(username: any, text: any) {
@@ -91,8 +94,6 @@ async function add_message(username: any, text: any) {
       name: username,
     },
   });
-
-  console.log(user);
 
   if (user) {
     const message = await prisma.chat.create({
@@ -106,11 +107,28 @@ async function add_message(username: any, text: any) {
         text: text,
       },
     });
+    console.log(message);
 
     return message;
   }
 
   return null;
+}
+
+async function get_chat_data(pageParam: string) {
+  const chat_data = await prisma.chat.findMany({
+    take: 10,
+    skip: Number(pageParam) * 10,
+    orderBy: {
+      create_date: "desc",
+    },
+  });
+
+  if (chat_data) {
+    return chat_data;
+  } else {
+    return false;
+  }
 }
 
 io.on("connection", (socket) => {
@@ -120,16 +138,19 @@ io.on("connection", (socket) => {
     console.log("user disconnected");
   });
 
-  socket.on("chat message", (msg) => {
-    let new_msg: any = add_message(msg.user, msg.text);
+  socket.on("chat message", async (msg) => {
+    let new_msg: any = await add_message(msg.user, msg.text);
 
     if (new_msg) {
+      // console.log(new_msg);
+
       io.emit("add message", new_msg);
     }
   });
 
   socket.on("select all", async () => {
     const all_message = await prisma.chat.findMany();
+
     socket.emit("send all message", all_message);
   });
 });
