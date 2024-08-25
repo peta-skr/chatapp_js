@@ -5,6 +5,8 @@ import { Inter } from "next/font/google";
 import { NextAuthProvider } from "@/lib/NextAuthProvider";
 import { SessionProvider } from "next-auth/react";
 import { SocketProvider } from "@/lib/SocketProvider";
+import { NextUIProvider } from "@nextui-org/react";
+import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -20,10 +22,12 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={inter.className}>
-        <SessionProvider>
-          <SocketProvider>{children}</SocketProvider>
-        </SessionProvider>
+      <body>
+        <NextUIProvider>
+          <SessionProvider>
+            <SocketProvider>{children}</SocketProvider>
+          </SessionProvider>
+        </NextUIProvider>
       </body>
     </html>
   );
