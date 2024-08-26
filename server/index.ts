@@ -85,7 +85,7 @@ app.get("/message/get", async (req, res) => {
   let pageParam = String(req.query.pageParam);
   let chat_data = await get_chat_data(pageParam);
 
-  res.send(chat_data);
+  res.send({ chat_data: chat_data, nextPage: Number(pageParam) + 1 });
 });
 
 async function add_message(username: any, text: any) {
