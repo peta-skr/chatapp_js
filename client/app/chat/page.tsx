@@ -32,7 +32,12 @@ const ChatPage = () => {
     }
   }
 
-  async function getChatData() {}
+  async function getChatData({ pageParam }: any) {
+    const res = await axios.get(
+      "http://localhost:4000/message/get?pageParam=" + pageParam
+    );
+    return res;
+  }
 
   const session = useSession();
   const router = useRouter();
@@ -40,17 +45,23 @@ const ChatPage = () => {
   const [text, setText] = useState("");
   // const [isConnected, setIsConnected] = useState(socket.connected);
   const [messages, SetMessages]: any = useState([]);
-  async function test() {
-    let res = await axios.get("http://localhost:4000/message/get?pageParam=1");
-    console.log(res);
-  }
 
-  // const {} = useInfiniteQuery({
-  //   queryKey: ["chat_data"],
-  //   queryFn: getChatData,
-  //   initialPageParam: 0,
-  //   getNextPageParam: (lastPage, pages) => lastPage.nextCursor,
-  // });
+  const {
+    data,
+    error,
+    fetchNextPage,
+    hasNextPage,
+    isFetching,
+    isFetchingNextPage,
+    status,
+  } = useInfiniteQuery({
+    queryKey: ["chat_data"],
+    queryFn: getChatData,
+    initialPageParam: 1,
+    getNextPageParam: (lastPage, pages) => lastPage.data.nextPage,
+  });
+
+  console.log(data);
 
   useEffect(() => {
     function onConnect() {
@@ -87,8 +98,12 @@ const ChatPage = () => {
     };
   }, [session]);
 
-  return (
-    <div className="overflow-hidden">
+  return status === "pending" ? (
+    <p>Loading...</p>
+  ) : status === "error" ? (
+    <p>Error</p>
+  ) : (
+    <div>
       <Navbar className="bg-primary-100">
         <NavbarContent className="hidden sm:flex gap-4" justify="center">
           <NavbarItem>
@@ -96,7 +111,7 @@ const ChatPage = () => {
           </NavbarItem>
         </NavbarContent>
       </Navbar>
-      <div>
+      <div className="overflow-hidden">
         {messages.map((msg: any) => {
           let date = new Date(msg.create_date).toLocaleDateString("ja-JP", {
             year: "numeric",
@@ -118,7 +133,8 @@ const ChatPage = () => {
           );
         })}
       </div>
-      <div className="bottom-0 fixed bg-white w-full p-4">
+      {/* <div className="bottom-0 fixed bg-white w-full p-4"> */}
+      <div className="sticky bottom-0 bg-white w-full p-4 z-50">
         <form onClick={(e) => send_message(e)}>
           <div className="flex w-full flex-wrap md:flex-nowrap">
             <Input
