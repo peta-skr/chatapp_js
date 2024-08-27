@@ -85,7 +85,9 @@ app.get("/message/get", async (req, res) => {
   let pageParam = String(req.query.pageParam);
   let chat_data = await get_chat_data(pageParam);
 
-  res.send({ chat_data: chat_data, nextPage: Number(pageParam) + 1 });
+  let nextPage = chat_data == false ? null : Number(pageParam) + 1;
+
+  res.send({ chat_data: chat_data, nextPage: nextPage });
 });
 
 async function add_message(username: any, text: any) {
@@ -125,7 +127,7 @@ async function get_chat_data(pageParam: string) {
   });
 
   if (chat_data) {
-    return chat_data;
+    return chat_data.reverse();
   } else {
     return false;
   }

@@ -61,7 +61,14 @@ const ChatPage = () => {
     getNextPageParam: (lastPage, pages) => lastPage.data.nextPage,
   });
 
-  console.log(data);
+  useEffect(() => {
+    if (data) {
+      SetMessages([
+        ...data?.pages[data.pages.length - 1].data.chat_data,
+        ...messages,
+      ]);
+    }
+  }, [data]);
 
   useEffect(() => {
     function onConnect() {
@@ -85,7 +92,7 @@ const ChatPage = () => {
 
       socket.on("connect", () => onConnect());
       socket.on("disconnect", onDisconnect);
-      socket.on("send all message", (all_message) => SetMessages(all_message));
+      // socket.on("send all message", (all_message) => SetMessages(all_message));
       socket.on("chat message", (msg) => console.log(msg));
       socket.on("add message", (msg) => SetMessages([...messages, msg]));
     } else {
@@ -108,6 +115,7 @@ const ChatPage = () => {
         <NavbarContent className="hidden sm:flex gap-4" justify="center">
           <NavbarItem>
             <p>{session.data?.user?.name}さん ようこそ</p>
+            <button onClick={() => fetchNextPage()}>ad</button>
           </NavbarItem>
         </NavbarContent>
       </Navbar>
