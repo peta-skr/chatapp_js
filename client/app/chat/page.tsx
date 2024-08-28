@@ -2,7 +2,7 @@
 
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { ReactNode, useEffect, useState } from "react";
+import { ReactNode, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { socket } from "@/socket";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import axios from "axios";
@@ -43,7 +43,6 @@ const ChatPage = () => {
   const router = useRouter();
 
   const [text, setText] = useState("");
-  // const [isConnected, setIsConnected] = useState(socket.connected);
   const [messages, SetMessages]: any = useState([]);
 
   const {
@@ -70,19 +69,23 @@ const ChatPage = () => {
     }
   }, [data]);
 
+  const scrollBottomRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (data?.pageParams.length == 1) {
+      scrollBottomRef?.current?.scrollIntoView();
+    }
+  }, [data]);
+
   useEffect(() => {
     function onConnect() {
       console.log("connect");
 
-      // setIsConnected(true);
-
-      socket.emit("select all");
+      // socket.emit("select all");
     }
 
     function onDisconnect() {
       console.log("disconnect");
-
-      // setIsConnected(false);
     }
 
     if (session.status == "unauthenticated") {
@@ -105,12 +108,26 @@ const ChatPage = () => {
     };
   }, [session]);
 
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    console.log(containerRef.current);
+
+    containerRef.current?.addEventListener("scroll", () =>
+      console.log(containerRef.current?.scrollTop)
+    );
+
+    containerRef.current?.addEventListener("scroll", () =>
+      console.log(containerRef.current?.scrollTop)
+    );
+  }, [status]);
+
   return status === "pending" ? (
     <p>Loading...</p>
   ) : status === "error" ? (
     <p>Error</p>
   ) : (
-    <div>
+    <div ref={containerRef}>
       <Navbar className="bg-primary-100">
         <NavbarContent className="hidden sm:flex gap-4" justify="center">
           <NavbarItem>
@@ -119,7 +136,7 @@ const ChatPage = () => {
           </NavbarItem>
         </NavbarContent>
       </Navbar>
-      <div className="overflow-hidden">
+      <div>
         {messages.map((msg: any) => {
           let date = new Date(msg.create_date).toLocaleDateString("ja-JP", {
             year: "numeric",
@@ -141,6 +158,7 @@ const ChatPage = () => {
           );
         })}
       </div>
+      <div ref={scrollBottomRef}></div>
       {/* <div className="bottom-0 fixed bg-white w-full p-4"> */}
       <div className="sticky bottom-0 bg-white w-full p-4 z-50">
         <form onClick={(e) => send_message(e)}>
