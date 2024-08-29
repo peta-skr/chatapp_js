@@ -44,6 +44,7 @@ const ChatPage = () => {
 
   const [text, setText] = useState("");
   const [messages, SetMessages]: any = useState([]);
+  const [height, setHeight] = useState(0);
 
   const {
     data,
@@ -66,6 +67,7 @@ const ChatPage = () => {
         ...data?.pages[data.pages.length - 1].data.chat_data,
         ...messages,
       ]);
+      console.log(document.body.clientHeight);
     }
   }, [data]);
 
@@ -73,9 +75,21 @@ const ChatPage = () => {
 
   useEffect(() => {
     if (data?.pageParams.length == 1) {
-      scrollBottomRef?.current?.scrollIntoView();
+      // scrollBottomRef?.current?.scrollIntoView();
+      window.scrollTo(0, document.body.clientHeight);
+      setHeight(document.body.clientHeight);
+    } else {
+      window.scrollTo(0, document.body.clientHeight - height);
+      setHeight(document.body.clientHeight);
     }
   }, [data]);
+
+  // useEffect(() => {
+  //   if (height != 0) {
+  //     window.scrollTo(0, document.body.clientHeight - height);
+  //   }
+  //   setHeight(document.body.clientHeight);
+  // }, [document.body.clientHeight]);
 
   useEffect(() => {
     function onConnect() {
@@ -113,13 +127,11 @@ const ChatPage = () => {
   useEffect(() => {
     console.log(containerRef.current);
 
-    containerRef.current?.addEventListener("scroll", () =>
-      console.log(containerRef.current?.scrollTop)
-    );
-
-    containerRef.current?.addEventListener("scroll", () =>
-      console.log(containerRef.current?.scrollTop)
-    );
+    document.addEventListener("scroll", () => {
+      if (window.scrollY == 0) {
+        // fetchNextPage();
+      }
+    });
   }, [status]);
 
   return status === "pending" ? (
@@ -127,7 +139,7 @@ const ChatPage = () => {
   ) : status === "error" ? (
     <p>Error</p>
   ) : (
-    <div ref={containerRef}>
+    <div>
       <Navbar className="bg-primary-100">
         <NavbarContent className="hidden sm:flex gap-4" justify="center">
           <NavbarItem>
@@ -136,7 +148,7 @@ const ChatPage = () => {
           </NavbarItem>
         </NavbarContent>
       </Navbar>
-      <div>
+      <div ref={containerRef}>
         {messages.map((msg: any) => {
           let date = new Date(msg.create_date).toLocaleDateString("ja-JP", {
             year: "numeric",
