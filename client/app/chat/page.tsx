@@ -61,6 +61,21 @@ const ChatPage = () => {
     getNextPageParam: (lastPage, pages) => lastPage.data.nextPage,
   });
 
+  console.log(data);
+
+  // ログイン済みか確認
+  useEffect(() => {
+    if (session.status == "unauthenticated") {
+      router.push("/");
+    } else if (session.status == "authenticated") {
+      socket.connect();
+      console.log(socket);
+
+      socket.on("chat message", (msg) => console.log(msg));
+      socket.on("add message", (msg) => SetMessages([...messages, msg]));
+    }
+  }, [session]);
+
   useEffect(() => {
     if (data) {
       SetMessages([
@@ -73,7 +88,7 @@ const ChatPage = () => {
 
   const scrollBottomRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (data?.pageParams.length == 1) {
       // scrollBottomRef?.current?.scrollIntoView();
       window.scrollTo(0, document.body.clientHeight);
@@ -84,43 +99,25 @@ const ChatPage = () => {
     }
   }, [data]);
 
+  useLayoutEffect(() => {
+    console.log("gg");
+
+    window.scrollTo(0, document.body.clientHeight);
+    // if (data?.pageParams.length == 1) {
+    //   // scrollBottomRef?.current?.scrollIntoView();
+    //   setHeight(document.body.clientHeight);
+    // } else {
+    //   window.scrollTo(0, document.body.clientHeight - height);
+    //   setHeight(document.body.clientHeight);
+    // }
+  }, [messages]);
+
   // useEffect(() => {
   //   if (height != 0) {
   //     window.scrollTo(0, document.body.clientHeight - height);
   //   }
   //   setHeight(document.body.clientHeight);
   // }, [document.body.clientHeight]);
-
-  useEffect(() => {
-    function onConnect() {
-      console.log("connect");
-
-      // socket.emit("select all");
-    }
-
-    function onDisconnect() {
-      console.log("disconnect");
-    }
-
-    if (session.status == "unauthenticated") {
-      router.push("/");
-    } else if (session.status == "authenticated") {
-      socket.connect();
-
-      socket.on("connect", () => onConnect());
-      socket.on("disconnect", onDisconnect);
-      // socket.on("send all message", (all_message) => SetMessages(all_message));
-      socket.on("chat message", (msg) => console.log(msg));
-      socket.on("add message", (msg) => SetMessages([...messages, msg]));
-    } else {
-      console.log("loading");
-    }
-
-    return () => {
-      socket.off("connect", onConnect);
-      socket.off("disconnect", onDisconnect);
-    };
-  }, [session]);
 
   const containerRef = useRef<HTMLDivElement>(null);
 
