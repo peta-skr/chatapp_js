@@ -21,8 +21,7 @@ import {
 } from "@nextui-org/react";
 
 const ChatPage = () => {
-  function send_message(event: any) {
-    event.preventDefault();
+  function send_message() {
     if (text.length > 0) {
       socket.emit("chat message", {
         user: session.data?.user?.name,
@@ -57,8 +56,9 @@ const ChatPage = () => {
   } = useInfiniteQuery({
     queryKey: ["chat_data"],
     queryFn: getChatData,
-    initialPageParam: 1,
+    initialPageParam: 0,
     getNextPageParam: (lastPage, pages) => lastPage.data.nextPage,
+    enabled: socket.connected,
   });
 
   console.log(data);
@@ -88,28 +88,29 @@ const ChatPage = () => {
 
   const scrollBottomRef = useRef<HTMLDivElement>(null);
 
-  useLayoutEffect(() => {
-    if (data?.pageParams.length == 1) {
-      // scrollBottomRef?.current?.scrollIntoView();
-      window.scrollTo(0, document.body.clientHeight);
-      setHeight(document.body.clientHeight);
-    } else {
-      window.scrollTo(0, document.body.clientHeight - height);
-      setHeight(document.body.clientHeight);
-    }
-  }, [data]);
+  // useLayoutEffect(() => {
+  //   if (data?.pageParams.length == 1) {
+  //     // scrollBottomRef?.current?.scrollIntoView();
+  //     window.scrollTo(0, document.body.clientHeight);
+  //     setHeight(document.body.clientHeight);
+  //   } else {
+  //     window.scrollTo(0, document.body.clientHeight - height);
+  //     setHeight(document.body.clientHeight);
+  //   }
+  // }, [data]);
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     console.log("gg");
 
-    window.scrollTo(0, document.body.clientHeight);
-    // if (data?.pageParams.length == 1) {
-    //   // scrollBottomRef?.current?.scrollIntoView();
-    //   setHeight(document.body.clientHeight);
-    // } else {
-    //   window.scrollTo(0, document.body.clientHeight - height);
-    //   setHeight(document.body.clientHeight);
-    // }
+    if (data?.pageParams.length == 1) {
+      window.scrollTo(0, document.body.clientHeight);
+      // scrollBottomRef?.current?.scrollIntoView();
+      setHeight(document.body.clientHeight);
+    } else {
+      window.scrollTo(0, document.body.clientHeight - height + window.scrollY);
+      // window.scrollTo(0, window.scrollY);
+      setHeight(document.body.clientHeight);
+    }
   }, [messages]);
 
   // useEffect(() => {
@@ -122,11 +123,15 @@ const ChatPage = () => {
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    console.log("test");
+  }, [containerRef]);
+
+  useEffect(() => {
     console.log(containerRef.current);
 
     document.addEventListener("scroll", () => {
       if (window.scrollY == 0) {
-        // fetchNextPage();
+        fetchNextPage();
       }
     });
   }, [status]);
@@ -170,18 +175,18 @@ const ChatPage = () => {
       <div ref={scrollBottomRef}></div>
       {/* <div className="bottom-0 fixed bg-white w-full p-4"> */}
       <div className="sticky bottom-0 bg-white w-full p-4 z-50">
-        <form onClick={(e) => send_message(e)}>
-          <div className="flex w-full flex-wrap md:flex-nowrap">
-            <Input
-              placeholder="text"
-              variant="bordered"
-              type="text"
-              value={text}
-              onChange={(event) => setText(event.target.value)}
-            />
-            <Button color="success">send</Button>
-          </div>
-        </form>
+        <div className="flex w-full flex-wrap md:flex-nowrap">
+          <Input
+            placeholder="text"
+            variant="bordered"
+            type="text"
+            value={text}
+            onChange={(event) => setText(event.target.value)}
+          />
+          <Button onClick={() => send_message()} color="success">
+            send
+          </Button>
+        </div>
       </div>
     </div>
   );
