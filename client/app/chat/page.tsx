@@ -19,6 +19,8 @@ import {
   CardBody,
   CardFooter,
 } from "@nextui-org/react";
+import Header from "@/components/Header";
+import ChatCard from "@/components/ChatCard";
 
 const ChatPage = () => {
   function send_message() {
@@ -61,74 +63,46 @@ const ChatPage = () => {
     enabled: socket.connected,
   });
 
-  console.log(data);
-
-  // ログイン済みか確認
-  useEffect(() => {
-    if (session.status == "unauthenticated") {
-      router.push("/");
-    } else if (session.status == "authenticated") {
-      socket.connect();
-      console.log(socket);
-
-      socket.on("chat message", (msg) => console.log(msg));
-      socket.on("add message", (msg) => SetMessages([...messages, msg]));
-    }
-  }, [session]);
-
   useEffect(() => {
     if (data) {
       SetMessages([
         ...data?.pages[data.pages.length - 1].data.chat_data,
         ...messages,
       ]);
-      console.log(document.body.clientHeight);
     }
   }, [data]);
 
-  const scrollBottomRef = useRef<HTMLDivElement>(null);
+  /*
+   *
+   * ログイン確認
+   *
+   */
+  if (session.status == "unauthenticated") {
+    router.push("/");
+  } else if (session.status == "authenticated") {
+    socket.connect();
 
-  // useLayoutEffect(() => {
-  //   if (data?.pageParams.length == 1) {
-  //     // scrollBottomRef?.current?.scrollIntoView();
-  //     window.scrollTo(0, document.body.clientHeight);
-  //     setHeight(document.body.clientHeight);
-  //   } else {
-  //     window.scrollTo(0, document.body.clientHeight - height);
-  //     setHeight(document.body.clientHeight);
-  //   }
-  // }, [data]);
+    // socket.on("chat message", (msg) => console.log(msg));
+    socket.on("add message", (msg) => {
+      SetMessages([...messages, msg]);
+    });
+  }
+
+  const scrollBottomRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     console.log("gg");
 
-    if (data?.pageParams.length == 1) {
+    if (data?.pageParams.length == 0) {
       window.scrollTo(0, document.body.clientHeight);
-      // scrollBottomRef?.current?.scrollIntoView();
       setHeight(document.body.clientHeight);
     } else {
       window.scrollTo(0, document.body.clientHeight - height + window.scrollY);
-      // window.scrollTo(0, window.scrollY);
       setHeight(document.body.clientHeight);
     }
   }, [messages]);
 
-  // useEffect(() => {
-  //   if (height != 0) {
-  //     window.scrollTo(0, document.body.clientHeight - height);
-  //   }
-  //   setHeight(document.body.clientHeight);
-  // }, [document.body.clientHeight]);
-
-  const containerRef = useRef<HTMLDivElement>(null);
-
   useEffect(() => {
-    console.log("test");
-  }, [containerRef]);
-
-  useEffect(() => {
-    console.log(containerRef.current);
-
     document.addEventListener("scroll", () => {
       if (window.scrollY == 0) {
         fetchNextPage();
@@ -142,15 +116,8 @@ const ChatPage = () => {
     <p>Error</p>
   ) : (
     <div>
-      <Navbar className="bg-primary-100">
-        <NavbarContent className="hidden sm:flex gap-4" justify="center">
-          <NavbarItem>
-            <p>{session.data?.user?.name}さん ようこそ</p>
-            <button onClick={() => fetchNextPage()}>ad</button>
-          </NavbarItem>
-        </NavbarContent>
-      </Navbar>
-      <div ref={containerRef}>
+      <Header session={session} />
+      <div>
         {messages.map((msg: any) => {
           let date = new Date(msg.create_date).toLocaleDateString("ja-JP", {
             year: "numeric",
@@ -159,21 +126,10 @@ const ChatPage = () => {
             hour: "2-digit",
             minute: "2-digit",
           });
-          return (
-            <Card key={msg.id} className="my-2 p-3">
-              <CardHeader className="flex gap-4">
-                <p>{msg.user_name}</p>
-                <p>{date}</p>
-              </CardHeader>
-              <CardBody>
-                <p>{msg.text}</p>
-              </CardBody>
-            </Card>
-          );
+          return <ChatCard msg={msg} date={date} />;
         })}
       </div>
       <div ref={scrollBottomRef}></div>
-      {/* <div className="bottom-0 fixed bg-white w-full p-4"> */}
       <div className="sticky bottom-0 bg-white w-full p-4 z-50">
         <div className="flex w-full flex-wrap md:flex-nowrap">
           <Input
