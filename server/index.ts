@@ -1,14 +1,12 @@
 import express from "express";
 import type { Express, Request, Response } from "express";
-import { PrismaClient } from "@prisma/client";
 import bodyParser, { BodyParser } from "body-parser";
 import formData from "express-form-data";
 import path from "path";
-import { v4 as uuidv4 } from "uuid";
 import { Server } from "socket.io";
 import { createServer } from "http";
 import cors from "cors";
-import { log } from "console";
+import { add_message, get_chat_data } from "./parts/chat";
 
 const app = express();
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -29,8 +27,6 @@ const io = new Server(httpServer, {
   path: "/socket/",
   cors: { origin: "http://localhost:3000" },
 });
-
-const prisma = new PrismaClient();
 
 app.get("/", async (req: Request, res: Response) => {
   const user = await prisma.user.create({
@@ -83,55 +79,13 @@ app.post("/message/send", (req, res) => {
 // 受信
 app.get("/message/get", async (req, res) => {
   let pageParam = String(req.query.pageParam);
-  let chat_data = await get_chat_data(pageParam);
+  let channelId = String(req.query.channelId);
+  let chat_data = await get_chat_data(pageParam, channelId);
 
   let nextPage = chat_data == false ? null : Number(pageParam) + 1;
 
   res.send({ chat_data: chat_data, nextPage: nextPage });
 });
-
-async function add_message(username: any, text: any) {
-  const user = await prisma.user.findUnique({
-    where: {
-      name: username,
-    },
-  });
-
-  if (user) {
-    const message = await prisma.chat.create({
-      data: {
-        id: uuidv4(),
-        user: {
-          connect: {
-            id: user.id,
-          },
-        },
-        text: text,
-      },
-    });
-    console.log(message);
-
-    return message;
-  }
-
-  return null;
-}
-
-async function get_chat_data(pageParam: string) {
-  const chat_data = await prisma.chat.findMany({
-    take: 10,
-    skip: Number(pageParam) * 10,
-    orderBy: {
-      create_date: "desc",
-    },
-  });
-
-  if (chat_data) {
-    return chat_data.reverse();
-  } else {
-    return false;
-  }
-}
 
 io.on("connection", (socket) => {
   console.log("socket");
@@ -141,19 +95,13 @@ io.on("connection", (socket) => {
   });
 
   socket.on("chat message", async (msg) => {
-    let new_msg: any = await add_message(msg.user, msg.text);
+    let new_msg: any = await add_message(msg.user, msg.channel_id, msg.text);
 
     if (new_msg) {
       // console.log(new_msg);
 
       io.emit("add message", new_msg);
     }
-  });
-
-  socket.on("select all", async () => {
-    const all_message = await prisma.chat.findMany();
-
-    socket.emit("send all message", all_message);
   });
 });
 

@@ -16,6 +16,7 @@ datasource db {
 model User {
   id String @id @db.VarChar(32)
   name String @unique @db.VarChar(32)
+  password String @db.VarChar(64)
   chats Chat[]
   join_channel User_Join_Channel[]
 }

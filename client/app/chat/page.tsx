@@ -6,19 +6,7 @@ import { ReactNode, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { socket } from "@/socket";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import axios from "axios";
-import {
-  Button,
-  Input,
-  Navbar,
-  NavbarBrand,
-  NavbarContent,
-  NavbarItem,
-  Link,
-  Card,
-  CardHeader,
-  CardBody,
-  CardFooter,
-} from "@nextui-org/react";
+import { Button, Input } from "@nextui-org/react";
 import Header from "@/components/Header";
 import ChatCard from "@/components/ChatCard";
 
