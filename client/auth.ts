@@ -7,6 +7,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     credentials({
       credentials: {
         name: { label: "Username" },
+        password: { label: "Password" },
       },
       authorize: async (credentials) => {
         let res = await axios.post(
