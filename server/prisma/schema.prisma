@@ -14,7 +14,7 @@ datasource db {
 }
 
 model User {
-  id String @id @db.VarChar(32)
+  id String @id @db.VarChar(36)
   name String @unique @db.VarChar(32)
   password String @db.VarChar(64)
   chats Chat[]
@@ -42,7 +42,7 @@ model User_Join_Channel {
   channel Channel @relation(fields: [channel_id], references: [id])
   channel_id String @db.VarChar(36)
   user User @relation(fields: [user_id], references: [id])
-  user_id String  @db.VarChar(32)
+  user_id String  @db.VarChar(36)
 
   @@unique(fields: [channel_id, user_id])
 }

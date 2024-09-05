@@ -10,6 +10,8 @@ async function signup(name: string, password: string) {
     },
   });
 
+  console.log(user);
+
   if (user) {
     return true;
   } else {
@@ -17,7 +19,7 @@ async function signup(name: string, password: string) {
   }
 }
 
-async function signin(name: string, password: string) {
+async function login(name: string, password: string) {
   const user = await prisma.user.findUnique({
     where: {
       name: name,
@@ -36,3 +38,5 @@ async function signin(name: string, password: string) {
     return false;
   }
 }
+
+export { signup, login };
