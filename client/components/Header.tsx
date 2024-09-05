@@ -1,5 +1,6 @@
 import React from "react";
 import { Navbar, NavbarContent, NavbarItem } from "@nextui-org/react";
+import { signIn, signOut, useSession } from "next-auth/react";
 
 const Header = ({ session, fetchNextPage }: any) => {
   return (
@@ -10,6 +11,9 @@ const Header = ({ session, fetchNextPage }: any) => {
         </NavbarItem>
         <NavbarItem>
           <p>{session.data?.user?.name}さん（ここは本来アイコン）</p>
+        </NavbarItem>
+        <NavbarItem>
+          <button onClick={() => signOut()}>signout</button>
         </NavbarItem>
       </NavbarContent>
     </Navbar>

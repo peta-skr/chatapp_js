@@ -1,5 +1,6 @@
 "use client";
 
+import { Button } from "@nextui-org/react";
 import { signIn, signOut, useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
@@ -20,8 +21,9 @@ export default function Home() {
 
   return (
     <main>
-      <h1>login</h1>
-      <button onClick={() => signIn()}>サインイン</button>
+      <h1>Welcome my chat app</h1>
+      <Button onClick={() => router.push("/signup")}>新規登録</Button>
+      <Button onClick={() => signIn()}>ログイン</Button>
     </main>
   );
 }

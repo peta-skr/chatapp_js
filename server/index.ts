@@ -7,6 +7,7 @@ import { Server } from "socket.io";
 import { createServer } from "http";
 import cors from "cors";
 import { add_message, get_chat_data } from "./parts/chat";
+import { signup } from "./parts/user";
 
 const app = express();
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -28,45 +29,19 @@ const io = new Server(httpServer, {
   cors: { origin: "http://localhost:3000" },
 });
 
-app.get("/", async (req: Request, res: Response) => {
-  const user = await prisma.user.create({
-    data: {
-      id: "test",
-      name: "test",
-    },
-  });
+app.post("/signup", async (req: Request, res: Response) => {
+  const name: string = req.body.name;
+  const password: string = req.body.password;
 
-  res.send({
-    user: user,
-  });
+  let result = signup(name, password);
+
+  res.send(result);
 });
 
 // ログイン
 app.post("/login", async (req: Request, res: Response) => {
   // reqでユーザ名が与えられる（いったん、パスワードとかは考えずに書く）
   let name = req.body.name;
-
-  // DB内に同一のユーザ名があれば、ログイン
-  const user = await prisma.user.findUnique({
-    where: {
-      name: name,
-    },
-  });
-
-  // なければ、新しく作成する
-  if (!user) {
-    const new_user = await prisma.user.create({
-      data: {
-        // id: uuidv4(),
-        id: name,
-        name: name,
-      },
-    });
-
-    res.send(new_user);
-  } else {
-    res.send(user);
-  }
 });
 
 // メッセージの送信

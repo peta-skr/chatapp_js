@@ -14,6 +14,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           "http://localhost:4000/login",
           {
             name: credentials.name,
+            password: credentials.password,
           },
           {
             headers: {
