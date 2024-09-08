@@ -2,6 +2,7 @@
 
 import { Button, Input } from "@nextui-org/react";
 import axios from "axios";
+import { signIn, useSession } from "next-auth/react";
 import React, { useState } from "react";
 
 const page = () => {
@@ -22,7 +23,13 @@ const page = () => {
       }
     );
 
-    console.log(res);
+    let data = res.data;
+
+    if (data.result === true) {
+      // auth.jsのサインインメソッドを実行している
+      // https://next-auth.js.org/getting-started/client#starts-oauth-sign-in-flow-when-clicked
+      await signIn("credentials", { name, password });
+    }
   }
 
   return (

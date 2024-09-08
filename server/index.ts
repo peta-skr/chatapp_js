@@ -7,7 +7,7 @@ import { Server } from "socket.io";
 import { createServer } from "http";
 import cors from "cors";
 import { add_message, get_chat_data } from "./parts/chat";
-import { signup } from "./parts/user";
+import { signup, login, UserReturn } from "./parts/user";
 
 const app = express();
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -29,19 +29,26 @@ const io = new Server(httpServer, {
   cors: { origin: "http://localhost:3000" },
 });
 
+// 新規登録
 app.post("/signup", async (req: Request, res: Response) => {
   const name: string = req.body.name;
   const password: string = req.body.password;
 
-  let result = signup(name, password);
+  let result: UserReturn = await signup(name, password);
+  console.log(result);
 
   res.send(result);
 });
 
 // ログイン
 app.post("/login", async (req: Request, res: Response) => {
-  // reqでユーザ名が与えられる（いったん、パスワードとかは考えずに書く）
-  let name = req.body.name;
+  const name: string = req.body.name;
+  const password: string = req.body.password;
+
+  let result: UserReturn = await login(name, password);
+  console.log(result);
+
+  res.send(result);
 });
 
 // メッセージの送信
