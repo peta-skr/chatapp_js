@@ -25,8 +25,6 @@ async function signup(name: string, password: string): Promise<UserReturn> {
     },
   });
 
-  console.log(same_user);
-
   if (same_user) {
     return new UserReturn(false, null, "この名前は既に使用されています。");
   }
@@ -46,7 +44,7 @@ async function signup(name: string, password: string): Promise<UserReturn> {
   }
 }
 
-async function login(name: string, password: string) {
+async function login(name: string, password: string): Promise<UserReturn> {
   const user = await prisma.user.findUnique({
     where: {
       name: name,
@@ -55,15 +53,15 @@ async function login(name: string, password: string) {
 
   // ユーザがないとき
   if (!user) {
-    return false;
+    return new UserReturn(false, null, "ログインに失敗しました。");
   }
 
   // パスワードチェック
   if (user.password === password) {
-    return true;
+    return new UserReturn(true, user, null);
   } else {
-    return false;
+    return new UserReturn(false, null, "ログインに失敗しました。");
   }
 }
 
-export { signup, login };
+export { signup, login, UserReturn };

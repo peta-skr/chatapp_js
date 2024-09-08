@@ -20,10 +20,10 @@ export default function Home() {
   }
 
   return (
-    <main>
-      <h1>Welcome my chat app</h1>
+    <main className="h-full flex justify-center flex-col align-middle">
+      <h1 className="font-bold text-xl">Welcome my chat app</h1>
       <Button onClick={() => router.push("/signup")}>新規登録</Button>
-      <Button onClick={() => signIn()}>ログイン</Button>
+      <Button onClick={() => router.push("/signin")}>ログイン</Button>
     </main>
   );
 }
