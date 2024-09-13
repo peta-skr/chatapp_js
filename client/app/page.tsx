@@ -20,10 +20,14 @@ export default function Home() {
   }
 
   return (
-    <main className="h-full flex justify-center flex-col align-middle">
+    <main className="h-svh flex justify-center flex-col items-center gap-5">
       <h1 className="font-bold text-xl">Welcome my chat app</h1>
-      <Button onClick={() => router.push("/signup")}>新規登録</Button>
-      <Button onClick={() => router.push("/signin")}>ログイン</Button>
+      <Button color="primary" onClick={() => router.push("/signup")}>
+        新規登録
+      </Button>
+      <Button color="primary" onClick={() => router.push("/signin")}>
+        ログイン
+      </Button>
     </main>
   );
 }
