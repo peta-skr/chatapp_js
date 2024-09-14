@@ -3,7 +3,6 @@
 import { Button, Input } from "@nextui-org/react";
 import axios from "axios";
 import { signIn, useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 
 const page = () => {
@@ -11,8 +10,6 @@ const page = () => {
   const [password, setPassword] = useState("");
   const [checkPassword, setCheckPassword] = useState("");
   const [errMsg, setErrMsg] = useState("");
-
-  const router = useRouter();
 
   async function signUp() {
     // 入力チェック
