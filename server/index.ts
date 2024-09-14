@@ -64,7 +64,7 @@ app.get("/message/get", async (req, res) => {
   let channelId = String(req.query.channelId);
   let chat_data = await get_chat_data(pageParam, channelId);
 
-  let nextPage = chat_data == false ? null : Number(pageParam) + 1;
+  let nextPage = chat_data.result == false ? null : Number(pageParam) + 1;
 
   res.send({ chat_data: chat_data, nextPage: nextPage });
 });
