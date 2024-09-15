@@ -9,6 +9,7 @@ import axios from "axios";
 import { Button, Input } from "@nextui-org/react";
 import Header from "@/components/Header";
 import ChatCard from "@/components/ChatCard";
+import SideBar from "@/components/SideBar";
 
 const ChatPage = () => {
   function send_message() {
@@ -53,8 +54,10 @@ const ChatPage = () => {
 
   useEffect(() => {
     if (data) {
+      console.log(data);
+
       SetMessages([
-        ...data?.pages[data.pages.length - 1].data.chat_data,
+        ...data?.pages[data.pages.length - 1].data.chat_data.chat,
         ...messages,
       ]);
     }
@@ -103,22 +106,25 @@ const ChatPage = () => {
   ) : status === "error" ? (
     <p>Error</p>
   ) : (
-    <div>
+    <div className="h-screen">
       <Header session={session} />
-      <div>
-        {messages.map((msg: any) => {
-          let date = new Date(msg.create_date).toLocaleDateString("ja-JP", {
-            year: "numeric",
-            month: "2-digit",
-            day: "2-digit",
-            hour: "2-digit",
-            minute: "2-digit",
-          });
-          return <ChatCard msg={msg} date={date} />;
-        })}
+      <div className="bg-teal-200 h-[84%] flex">
+        <SideBar />
+        <div className="w-4/5 h-full bg-teal-300">
+          {messages.map((msg: any) => {
+            let date = new Date(msg.create_date).toLocaleDateString("ja-JP", {
+              year: "numeric",
+              month: "2-digit",
+              day: "2-digit",
+              hour: "2-digit",
+              minute: "2-digit",
+            });
+            return <ChatCard msg={msg} date={date} />;
+          })}
+        </div>
       </div>
       <div ref={scrollBottomRef}></div>
-      <div className="sticky bottom-0 bg-white w-full p-4 z-50">
+      <div className="sticky bottom-0 bg-red-100 w-full p-4 z-50 h-[8%]">
         <div className="flex w-full flex-wrap md:flex-nowrap">
           <Input
             placeholder="text"
