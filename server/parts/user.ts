@@ -17,6 +17,22 @@ class UserReturn {
   }
 }
 
+class UserListReturn {
+  result: boolean;
+  user: User[] | null;
+  errorMessage: string | null;
+
+  constructor(
+    result: boolean,
+    user: User[] | null,
+    errorMessage: string | null
+  ) {
+    this.result = result;
+    this.user = user;
+    this.errorMessage = errorMessage;
+  }
+}
+
 async function signup(name: string, password: string): Promise<UserReturn> {
   // 同じ名前をユーザがいるかチェック
   const same_user = await prisma.user.findUnique({
@@ -48,6 +64,29 @@ async function login(name: string, password: string): Promise<UserReturn> {
   const user = await prisma.user.findUnique({
     where: {
       name: name,
+    },
+  });
+
+  // ユーザがないとき
+  if (!user) {
+    return new UserReturn(false, null, "ログインに失敗しました。");
+  }
+
+  // パスワードチェック
+  if (user.password === password) {
+    return new UserReturn(true, user, null);
+  } else {
+    return new UserReturn(false, null, "ログインに失敗しました。");
+  }
+}
+
+// 自分以外のユーザを取得する
+async function getUserListWithoutMe(name: string): Promise<UserListReturn> {
+  const user = await prisma.user.findUnique({
+    where: {
+      NOT: {
+        name: name,
+      },
     },
   });
 
