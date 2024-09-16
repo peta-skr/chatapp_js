@@ -81,26 +81,21 @@ async function login(name: string, password: string): Promise<UserReturn> {
 }
 
 // 自分以外のユーザを取得する
-async function getUserListWithoutMe(name: string): Promise<UserListReturn> {
-  const user = await prisma.user.findUnique({
+async function getUserListWithoutMe(id: string): Promise<UserListReturn> {
+  const users = await prisma.user.findMany({
     where: {
       NOT: {
-        name: name,
+        id: id,
       },
     },
   });
 
   // ユーザがないとき
-  if (!user) {
-    return new UserReturn(false, null, "ログインに失敗しました。");
+  if (!users) {
+    return new UserListReturn(false, null, "ユーザの取得に失敗しました。");
   }
 
-  // パスワードチェック
-  if (user.password === password) {
-    return new UserReturn(true, user, null);
-  } else {
-    return new UserReturn(false, null, "ログインに失敗しました。");
-  }
+  return new UserListReturn(true, users, null);
 }
 
-export { signup, login, UserReturn };
+export { signup, login, getUserListWithoutMe, UserReturn, UserListReturn };

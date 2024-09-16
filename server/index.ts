@@ -7,7 +7,7 @@ import { Server } from "socket.io";
 import { createServer } from "http";
 import cors from "cors";
 import { add_message, get_chat_data } from "./parts/chat";
-import { signup, login, UserReturn } from "./parts/user";
+import { signup, login, UserReturn, getUserListWithoutMe } from "./parts/user";
 
 const app = express();
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -67,6 +67,14 @@ app.get("/message/get", async (req, res) => {
   let nextPage = chat_data.result == false ? null : Number(pageParam) + 1;
 
   res.send({ chat_data: chat_data, nextPage: nextPage });
+});
+
+// 自分以外のユーザ取得
+app.get("/user/all", async (req, res) => {
+  let userid: string = String(req.query.userid);
+  let userList = await getUserListWithoutMe(userid);
+
+  res.send(userList);
 });
 
 io.on("connection", (socket) => {
