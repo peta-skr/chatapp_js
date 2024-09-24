@@ -4,16 +4,20 @@ import { Button, Input } from "@nextui-org/react";
 import axios from "axios";
 import { signIn, useSession } from "next-auth/react";
 import React, { useState } from "react";
+import { createUserWithEmailAndPassword } from "firebase/auth";
+import auth from "@/lib/firebase";
 
 const page = () => {
-  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [checkPassword, setCheckPassword] = useState("");
   const [errMsg, setErrMsg] = useState("");
 
+  // const auth = getAuth();
+
   async function signUp() {
     // 入力チェック
-    if (name == "" || password == "" || checkPassword == "") {
+    if (email == "" || password == "" || checkPassword == "") {
       setErrMsg("必要事項を記入してください。");
       return;
     }
@@ -24,29 +28,42 @@ const page = () => {
       return;
     }
 
-    const res = await axios.post(
-      "http://localhost:4000/signup",
-      {
-        name: name,
-        password: password,
-      },
-      {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      }
-    );
+    createUserWithEmailAndPassword(auth, email, password)
+      .then((userCredential) => {
+        const user = userCredential.user;
+        console.log(user);
+      })
+      .catch((error) => {
+        const errCode = error.code;
+        const errMessage = error.message;
 
-    let data = res.data;
+        console.log(errCode);
+        console.log(errMessage);
+      });
 
-    if (data.result === true) {
-      // auth.jsのサインインメソッドを実行している
-      // https://next-auth.js.org/getting-started/client#starts-oauth-sign-in-flow-when-clicked
-      await signIn("credentials", { name, password, callbackUrl: "/chat" });
-    } else {
-      // 新規登録に失敗したときの処理
-      setErrMsg(data.errorMessage);
-    }
+    // const res = await axios.post(
+    //   "http://localhost:4000/signup",
+    //   {
+    //     name: name,
+    //     password: password,
+    //   },
+    //   {
+    //     headers: {
+    //       "Content-Type": "multipart/form-data",
+    //     },
+    //   }
+    // );
+
+    // let data = res.data;
+
+    // if (data.result === true) {
+    //   // auth.jsのサインインメソッドを実行している
+    //   // https://next-auth.js.org/getting-started/client#starts-oauth-sign-in-flow-when-clicked
+    //   await signIn("credentials", { name, password, callbackUrl: "/chat" });
+    // } else {
+    //   // 新規登録に失敗したときの処理
+    //   setErrMsg(data.errorMessage);
+    // }
   }
 
   return (
@@ -54,9 +71,9 @@ const page = () => {
       <h1>Sign Up</h1>
       <Input
         className="w-2/3"
-        label="ユーザ名"
-        value={name}
-        onChange={(e) => setName(e.target.value)}
+        label="メールアドレス"
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
       />
       <Input
         className="w-2/3"
