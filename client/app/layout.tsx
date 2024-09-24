@@ -3,7 +3,6 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import { NextAuthProvider } from "@/lib/NextAuthProvider";
-import { SessionProvider } from "next-auth/react";
 import { SocketProvider } from "@/lib/SocketProvider";
 import { NextUIProvider } from "@nextui-org/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -20,11 +19,9 @@ export default function RootLayout({
     <html lang="en">
       <body>
         <NextUIProvider>
-          <SessionProvider>
-            <QueryClientProvider client={queryClient}>
-              <SocketProvider>{children}</SocketProvider>
-            </QueryClientProvider>
-          </SessionProvider>
+          <QueryClientProvider client={queryClient}>
+            <SocketProvider>{children}</SocketProvider>
+          </QueryClientProvider>
         </NextUIProvider>
       </body>
     </html>
