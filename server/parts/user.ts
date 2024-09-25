@@ -33,23 +33,11 @@ class UserListReturn {
   }
 }
 
-async function signup(name: string, password: string): Promise<UserReturn> {
-  // 同じ名前をユーザがいるかチェック
-  const same_user = await prisma.user.findUnique({
-    where: {
-      name: name,
-    },
-  });
-
-  if (same_user) {
-    return new UserReturn(false, null, "この名前は既に使用されています。");
-  }
-
+async function signup(name: string, uid: string): Promise<UserReturn> {
   const user = await prisma.user.create({
     data: {
-      id: uuidv4(),
+      id: uid,
       name: name,
-      password: password,
     },
   });
 
@@ -60,10 +48,10 @@ async function signup(name: string, password: string): Promise<UserReturn> {
   }
 }
 
-async function login(name: string, password: string): Promise<UserReturn> {
+async function login(uid: string): Promise<UserReturn> {
   const user = await prisma.user.findUnique({
     where: {
-      name: name,
+      id: uid,
     },
   });
 
@@ -73,11 +61,7 @@ async function login(name: string, password: string): Promise<UserReturn> {
   }
 
   // パスワードチェック
-  if (user.password === password) {
-    return new UserReturn(true, user, null);
-  } else {
-    return new UserReturn(false, null, "ログインに失敗しました。");
-  }
+  return new UserReturn(true, user, null);
 }
 
 // 自分以外のユーザを取得する

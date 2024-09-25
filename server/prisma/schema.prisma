@@ -15,16 +15,15 @@ datasource db {
 
 model User {
   id String @id @db.VarChar(36)
-  name String @unique @db.VarChar(32)
-  password String @db.VarChar(64)
+  name String @db.VarChar(32)
   chats Chat[]
   join_channel User_Join_Channel[]
 }
 
 model Chat {
   id String @id @db.VarChar(36)
-  user User @relation(fields: [user_name], references: [name])
-  user_name String @db.VarChar(32)
+  user User @relation(fields: [user_id], references: [id])
+  user_id String @db.VarChar(36)
   channel Channel @relation(fields: [channel_id], references: [id])
   channel_id String @db.VarChar(36)
   text String

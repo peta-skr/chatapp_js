@@ -8,6 +8,7 @@ import { createUserWithEmailAndPassword } from "firebase/auth";
 import auth from "@/lib/firebase";
 
 const page = () => {
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [checkPassword, setCheckPassword] = useState("");
@@ -17,7 +18,7 @@ const page = () => {
 
   async function signUp() {
     // 入力チェック
-    if (email == "" || password == "" || checkPassword == "") {
+    if (name == "" || email == "" || password == "" || checkPassword == "") {
       setErrMsg("必要事項を記入してください。");
       return;
     }
@@ -29,46 +30,47 @@ const page = () => {
     }
 
     createUserWithEmailAndPassword(auth, email, password)
-      .then((userCredential) => {
+      .then(async (userCredential) => {
         const user = userCredential.user;
-        console.log(user);
+        console.log(user.uid);
+
+        const res = await axios.post(
+          "http://localhost:4000/signup",
+          {
+            name: name,
+            uid: user.uid,
+          },
+          {
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
+          }
+        );
+
+        let data = res.data;
+
+        if (data.result === false) {
+          // 新規登録に失敗したときの処理
+          setErrMsg(data.errorMessage);
+        }
       })
       .catch((error) => {
         const errCode = error.code;
         const errMessage = error.message;
 
-        console.log(errCode);
-        console.log(errMessage);
+        setErrMsg(`${errCode} : ${errMessage}`);
       });
-
-    // const res = await axios.post(
-    //   "http://localhost:4000/signup",
-    //   {
-    //     name: name,
-    //     password: password,
-    //   },
-    //   {
-    //     headers: {
-    //       "Content-Type": "multipart/form-data",
-    //     },
-    //   }
-    // );
-
-    // let data = res.data;
-
-    // if (data.result === true) {
-    //   // auth.jsのサインインメソッドを実行している
-    //   // https://next-auth.js.org/getting-started/client#starts-oauth-sign-in-flow-when-clicked
-    //   await signIn("credentials", { name, password, callbackUrl: "/chat" });
-    // } else {
-    //   // 新規登録に失敗したときの処理
-    //   setErrMsg(data.errorMessage);
-    // }
   }
 
   return (
     <div className="h-svh flex justify-center flex-col items-center gap-5">
       <h1>Sign Up</h1>
+      <Input
+        className="w-2/3"
+        label="名前"
+        value={name}
+        onChange={(e) => setName(e.target.value)}
+      />
       <Input
         className="w-2/3"
         label="メールアドレス"
