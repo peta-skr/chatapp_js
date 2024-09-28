@@ -5,7 +5,7 @@ import axios from "axios";
 import { signIn, useSession } from "next-auth/react";
 import React, { useState } from "react";
 import { createUserWithEmailAndPassword } from "firebase/auth";
-import auth from "@/lib/firebase";
+import { auth } from "@/lib/firebase";
 
 const page = () => {
   const [name, setName] = useState("");
