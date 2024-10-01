@@ -2,6 +2,7 @@
 
 import { Button } from "@nextui-org/react";
 import { signIn, signOut, useSession } from "next-auth/react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
@@ -22,12 +23,12 @@ export default function Home() {
   return (
     <main className="h-svh flex justify-center flex-col items-center gap-5">
       <h1 className="font-bold text-xl">Welcome my chat app</h1>
-      <Button color="primary" onClick={() => router.push("/signup")}>
-        新規登録
-      </Button>
-      <Button color="primary" onClick={() => router.push("/signin")}>
-        ログイン
-      </Button>
+      <Link href="/signup">
+        <Button color="primary">新規登録</Button>
+      </Link>
+      <Link href="/signin">
+        <Button color="primary">ログイン</Button>
+      </Link>
     </main>
   );
 }
